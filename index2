@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>ES 溫習筆記</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --card: #f5f5f5;
+    --border: #ddd;
+    --accent: #0066cc;
+    --accent2: #e8f0fe;
+    --code-bg: #f0f0f0;
+    --table-head: #e0e0e0;
+    --table-alt: #f9f9f9;
+    --box-tip: #e8f5e9;
+    --box-warn: #fff3e0;
+    --box-key: #e3f2fd;
+    --shadow: rgba(0,0,0,0.08);
+  }
+  [data-theme="dark"] {
+    --bg: #1a1a2e;
+    --text: #e0e0e0;
+    --card: #16213e;
+    --border: #333;
+    --accent: #64b5f6;
+    --accent2: #1a2744;
+    --code-bg: #0f3460;
+    --table-head: #1f3a5f;
+    --table-alt: #16213e;
+    --box-tip: #1b3a1b;
+    --box-warn: #3a2a10;
+    --box-key: #1a2744;
+    --shadow: rgba(0,0,0,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html {
+    font-size: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    transition: background 0.3s, color 0.3s;
+  }
+  h1 {
+    font-size: 1.6rem;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid var(--accent);
+  }
+  h2 {
+    font-size: 1.35rem;
+    margin: 1.8rem 0 0.8rem;
+    color: var(--accent);
+  }
+  h3 {
+    font-size: 1.15rem;
+    margin: 1.2rem 0 0.6rem;
+  }
+  h4 {
+    font-size: 1.05rem;
+    margin: 1rem 0 0.4rem;
+  }
+  p { margin: 0.5rem 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.8rem 0;
+    font-size: 0.92rem;
+    overflow-x: auto;
+    display: block;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.6rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+  th { background: var(--table-head); font-weight: 600; }
+  tr:nth-child(even) td { background: var(--table-alt); }
+  .formula {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin: 0.6rem 0;
+    font-family: "Courier New", monospace;
+    font-size: 0.95rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .box-tip, .box-warn, .box-key {
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin: 0.8rem 0;
+  }
+  .box-tip { background: var(--box-tip); border-left: 4px solid #4caf50; }
+  .box-warn { background: var(--box-warn); border-left: 4px solid #ff9800; }
+  .box-key { background: var(--box-key); border-left: 4px solid #2196f3; }
+  blockquote {
+    border-left: 4px solid var(--accent);
+    padding: 0.5rem 1rem;
+    margin: 0.6rem 0;
+    background: var(--accent2);
+    border-radius: 0 8px 8px 0;
+  }
+  .answer {
+    background: var(--accent2);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin: 0.6rem 0;
+    font-weight: 600;
+  }
+  .toggle-btn {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 999;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: all 0.3s;
+  }
+  .toggle-btn:hover { transform: scale(1.1); }
+  .toc {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+  }
+  .toc a {
+    color: var(--accent);
+    text-decoration: none;
+    display: block;
+    padding: 0.25rem 0;
+  }
+  .toc a:hover { text-decoration: underline; }
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+  .step { margin: 0.4rem 0 0.4rem 1rem; }
+  ul, ol { padding-left: 1.5rem; margin: 0.4rem 0; }
+  li { margin: 0.2rem 0; }
+  .section-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  @media (max-width: 480px) {
+    body { padding: 0.6rem; font-size: 0.95rem; }
+    h1 { font-size: 1.35rem; }
+    h2 { font-size: 1.15rem; }
+    th, td { padding: 0.35rem 0.4rem; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<button class="toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+
+<h1>🔥 3 小時考試極速溫習指南</h1>
+<p><strong>策略：攞 70-80% 嘅分數，用 100% 嘅效率</strong></p>
+
+<div class="toc">
+  <strong>📑 目錄</strong>
+  <a href="#plan">⏰ 三小時溫習計劃</a>
+  <a href="#cheatsheet">📋 考試公式速查表</a>
+  <a href="#q1">Q1 — Sampling Methods</a>
+  <a href="#q2">Q2 — Normal Distribution 綜合題</a>
+  <a href="#q3">Q3 — Price Index</a>
+  <a href="#q4">Q4 — Descriptive Statistics</a>
+  <a href="#q5">Q5 — Confidence Interval</a>
+  <a href="#q6">Q6 — Discrete Probability Distribution</a>
+  <a href="#q7">Q7 — Price Index 第二題</a>
+  <a href="#q8">Q8 — Time Series Analysis</a>
+  <a href="#q9">Q9 — Descriptive Stats (Combined Data)</a>
+  <a href="#q10">Q10 — Probability Distribution + Linear Transformation</a>
+  <a href="#q11">Q11 — Confidence Interval 進階版</a>
+  <a href="#q12">Q12 — Linear Regression + Time Series</a>
+  <a href="#q13">Q13 — CPI</a>
+  <a href="#q14">Q14 — Normal Distribution 進階版</a>
+</div>
+
+<!-- ==================== 三小時溫習計劃 ==================== -->
+<section id="plan">
+<h1>⏰ 三小時溫習計劃</h1>
+
+<h2>📊 Topic 性價比分析</h2>
+<table>
+<tr><th>Topic</th><th>出現次數</th><th>難度</th><th>性價比</th><th>策略</th></tr>
+<tr><td><strong>Probability Distribution (E(X), Var(X))</strong></td><td>Q6, Q10</td><td>⭐</td><td>🔥🔥🔥🔥🔥</td><td>必攻！送分題</td></tr>
+<tr><td><strong>Confidence Interval</strong></td><td>Q5, Q11</td><td>⭐⭐</td><td>🔥🔥🔥🔥🔥</td><td>必攻！公式題</td></tr>
+<tr><td><strong>Normal Distribution (基本查表)</strong></td><td>Q2(a)(b), Q14(a)(b)</td><td>⭐⭐</td><td>🔥🔥🔥🔥</td><td>必攻！</td></tr>
+<tr><td><strong>Price Index (Laspeyres/Paasche)</strong></td><td>Q3, Q7</td><td>⭐⭐</td><td>🔥🔥🔥🔥</td><td>必攻！純計算</td></tr>
+<tr><td><strong>CPI</strong></td><td>Q13</td><td>⭐</td><td>🔥🔥🔥🔥🔥</td><td>必攻！最易</td></tr>
+<tr><td><strong>Sampling + 概念</strong></td><td>Q1</td><td>⭐</td><td>🔥🔥🔥🔥</td><td>必攻！背就得</td></tr>
+<tr><td><strong>Descriptive Stats</strong></td><td>Q4, Q9</td><td>⭐⭐</td><td>🔥🔥🔥</td><td>攻基本部分</td></tr>
+<tr><td><strong>Linear Transformation</strong></td><td>Q2(d), Q10(c), Q14(c)</td><td>⭐⭐</td><td>🔥🔥🔥🔥</td><td>必攻！公式簡單</td></tr>
+<tr><td><strong>Time Series</strong></td><td>Q8, Q12(d)</td><td>⭐⭐⭐</td><td>🔥🔥</td><td>識概念就好</td></tr>
+<tr><td><strong>Linear Regression</strong></td><td>Q12(a)(b)</td><td>⭐⭐⭐</td><td>🔥🔥</td><td>放棄計算，記公式</td></tr>
+<tr><td><strong>Binomial Distribution</strong></td><td>Q2(c)</td><td>⭐⭐⭐</td><td>🔥</td><td>低優先</td></tr>
+<tr><td><strong>Centered 4-period MA</strong></td><td>Q12(d)</td><td>⭐⭐⭐⭐</td><td>🔥</td><td>放棄</td></tr>
+</table>
+
+<h2>⏰ 時間分配</h2>
+<table>
+<tr><th>時段</th><th>時間</th><th>內容</th><th>目標</th></tr>
+<tr><td><strong>第 1 小時</strong></td><td>60 min</td><td>🅰️ 送分區：概念 + 概率分佈 + CPI</td><td>穩攞 30% 嘅分</td></tr>
+<tr><td><strong>第 2 小時</strong></td><td>60 min</td><td>🅱️ 主力區：Normal Distribution + CI + Price Index</td><td>再攞 30% 嘅分</td></tr>
+<tr><td><strong>第 3 小時</strong></td><td>60 min</td><td>🅲️ 加分區：Descriptive Stats + Transformation + 做題</td><td>再攞 15-20%</td></tr>
+</table>
+
+<hr>
+
+<h2>⏰ 第 1 小時：送分區</h2>
+
+<h3>🎯 1.1 Sampling Methods（5 分鐘背完）</h3>
+<div class="box-key">
+<p>🔹 <strong>Simple Random</strong> = 「人人平等，隨機抽」→ 見到 "randomly selected"</p>
+<p>🔹 <strong>Stratified</strong> = 「先分組，再各自抽」→ 見到 "departments / groups / categories"</p>
+<p>🔹 <strong>Systematic</strong> = 「每隔 K 個抽一個」→ 見到 "every k-th"</p>
+</div>
+<table>
+<tr><th>問題</th><th>答案</th></tr>
+<tr><td>量度「差異/分散程度」嘅統計量？</td><td><strong>Standard Deviation</strong> 同 <strong>Range</strong></td></tr>
+<tr><td>「相對貴」嘅電腦用邊個？</td><td><strong>90th Percentile</strong></td></tr>
+<tr><td>「最常見答案」用邊個？</td><td><strong>Mode</strong>（眾數）</td></tr>
+</table>
+
+<h3>🎯 1.2 Discrete Probability Distribution（20 分鐘）</h3>
+<p><strong>Q6 同 Q10 都係呢類，全份卷最易攞滿分！</strong></p>
+<div class="formula">① 搵 missing value k：所有概率加埋 = 1
+② E(X) = Σ x × P(X = x)
+③ Var(X) = E(X²) − [E(X)]²
+   口訣：「平方嘅期望 減 期望嘅平方」
+④ SD(X) = √Var(X)</div>
+<p><strong>實戰模板</strong>：整一個表 → x, P(X=x), x·P, x²·P → Total 行加埋就得</p>
+
+<h3>🎯 1.3 CPI（10 分鐘）</h3>
+<div class="formula">Inflation Rate = (CPI_new − CPI_old) / CPI_old × 100%
+口訣：「（新減舊）除以舊」</div>
+<ul>
+<li>CPI 逐年<strong>上升</strong> → <strong>Inflation</strong></li>
+<li>CPI 逐年<strong>下降</strong> → <strong>Deflation</strong></li>
+</ul>
+
+<h3>🎯 1.4 Linear Transformation（15 分鐘）</h3>
+<div class="formula">Y = aX + b：
+  E(Y) = a·E(X) + b
+  Var(Y) = a²·Var(X)      ← b 唔影響！
+  SD(Y) = |a|·SD(X)
+
+T = X + Y（獨立）：
+  E(T) = E(X) + E(Y)
+  Var(T) = Var(X) + Var(Y)
+  SD(T) = √[Var(X)+Var(Y)]  ← SD 唔可以直接加！</div>
+<div class="box-warn">
+<p>⚠️ <strong>最大陷阱</strong>：SD 唔可以直接加！要加 Variance 再開根號！</p>
+<p>❌ SD(T) = 8 + 15 = 23</p>
+<p>✅ SD(T) = √(64 + 225) = √289 = 17</p>
+</div>
+<div class="box-tip">
+<p>✅ <strong>第 1 小時完成後</strong>：Q1, Q6, Q10, Q13, Q2(d), Q14(c) 全部搞掂，預計攞分 ~30-35%</p>
+</div>
+
+<hr>
+
+<h2>⏰ 第 2 小時：主力區</h2>
+
+<h3>🎯 2.1 Normal Distribution 查表（25 分鐘）</h3>
+<div class="formula">Z = (X − μ) / σ</div>
+
+<h4>題型 A：P(X &lt; 某個值)</h4>
+<div class="formula">Step 1：Z = (X − μ) / σ
+Step 2：P(Z &lt; −a) = 0.5 − P(0 &lt; Z &lt; a)
+Step 3：查表
+Step 4：計答案</div>
+
+<h4>題型 B：P(a &lt; X &lt; b)「兩邊夾」</h4>
+<table>
+<tr><th>Z₁ 同 Z₂ 嘅位置</th><th>做法</th></tr>
+<tr><td>一左一右（最常見）</td><td><strong>加</strong></td></tr>
+<tr><td>兩個都喺右邊</td><td><strong>大減細</strong></td></tr>
+<tr><td>兩個都喺左邊</td><td><strong>大減細</strong>（用絕對值查表）</td></tr>
+</table>
+
+<h4>題型 C：反查（由概率搵 X）</h4>
+<div class="formula">Step 1：判斷 M 喺 mean 嘅邊邊
+Step 2：P(0 &lt; Z &lt; z) = |0.5 − 已知面積|
+Step 3：反查表 → 搵 Z
+Step 4：M = μ + Z × σ</div>
+<table>
+<tr><th>情況</th><th>Z 正負</th></tr>
+<tr><td>右邊面積<strong>細</strong>（&lt; 0.5）</td><td>Z <strong>正</strong>（M 偏大）</td></tr>
+<tr><td>右邊面積<strong>大</strong>（&gt; 0.5）</td><td>Z <strong>負</strong>（M 偏細）</td></tr>
+</table>
+
+<h3>🎯 2.2 Confidence Interval（20 分鐘）</h3>
+<div class="formula">決策樹：
+要估咩？
+├── Mean (μ)
+│   ├── σ KNOWN → 用 Z → x̄ ± Z × σ/√n
+│   └── σ UNKNOWN → 用 t → x̄ ± t × s/√n  (df = n−1)
+└── Proportion (p)
+    └── 永遠用 Z → p̂ ± Z × √[p̂(1−p̂)/n]</div>
+
+<h4>Z 值必背：</h4>
+<table>
+<tr><th>Confidence</th><th>Z</th></tr>
+<tr><td>90%</td><td><strong>1.645</strong></td></tr>
+<tr><td>95%</td><td><strong>1.96</strong></td></tr>
+<tr><td>98%</td><td><strong>2.326</strong></td></tr>
+<tr><td>99%</td><td><strong>2.576</strong></td></tr>
+</table>
+
+<h4>Minimum Sample Size：</h4>
+<div class="formula">n = (Z × σ / ME)² → 一定 ROUND UP！</div>
+
+<h4>Interpretation 模板：</h4>
+<blockquote>"We are [confidence level]% confident that the population [mean/proportion] is between [lower] and [upper]."</blockquote>
+
+<h3>🎯 2.3 Price Index（15 分鐘）</h3>
+<table>
+<tr><th></th><th>Laspeyres</th><th>Paasche</th></tr>
+<tr><td><strong>Quantity</strong></td><td>Base Year q₀（舊）</td><td>Current Year qₜ（新）</td></tr>
+<tr><td><strong>分子</strong></td><td>Σ q₀ × pₜ</td><td>Σ qₜ × pₜ</td></tr>
+<tr><td><strong>分母</strong></td><td>Σ q₀ × p₀</td><td>Σ qₜ × p₀</td></tr>
+<tr><td><strong>最後</strong></td><td>× 100</td><td>× 100</td></tr>
+</table>
+<div class="box-key">
+<p>🧠 <strong>L</strong> = <strong>L</strong>ast（舊數量），<strong>P</strong> = <strong>P</strong>resent（新數量）</p>
+<p>分子永遠用 current price，分母永遠用 base price</p>
+</div>
+<div class="box-tip">
+<p>✅ <strong>第 2 小時完成後</strong>：Q2(a)(b), Q14(a)(b)(d), Q5, Q11, Q3, Q7 全部搞掂，累計 ~65-70%</p>
+</div>
+
+<hr>
+
+<h2>⏰ 第 3 小時：加分區 + 實戰練習</h2>
+
+<h3>🎯 3.1 Descriptive Statistics 快速版（15 分鐘）</h3>
+<table>
+<tr><th>統計量</th><th>公式</th><th>記法</th></tr>
+<tr><td>Mean</td><td>Σx ÷ n</td><td>全部加埋除個數</td></tr>
+<tr><td>Sample SD</td><td>√[(Σx² − nx̄²) / (n−1)]</td><td>分母用 n−1</td></tr>
+<tr><td>Range</td><td>Max − Min</td><td>最大減最細</td></tr>
+<tr><td>IQR</td><td>Q₃ − Q₁</td><td></td></tr>
+<tr><td>Q₁ 位置</td><td>¼(n+1)</td><td></td></tr>
+<tr><td>Q₂ 位置</td><td>½(n+1)</td><td></td></tr>
+<tr><td>Q₃ 位置</td><td>¾(n+1)</td><td></td></tr>
+<tr><td>Percentile 位置</td><td>(P/100)(n+1)</td><td></td></tr>
+</table>
+
+<h4>Skewness（一定會考）：</h4>
+<table>
+<tr><th>比較</th><th>結論</th></tr>
+<tr><td>Q₃ − Q₂ <strong>&gt;</strong> Q₂ − Q₁</td><td><strong>Positive skew</strong>（右偏）</td></tr>
+<tr><td>Q₃ − Q₂ <strong>&lt;</strong> Q₂ − Q₁</td><td><strong>Negative skew</strong>（左偏）</td></tr>
+<tr><td>Q₃ − Q₂ <strong>=</strong> Q₂ − Q₁</td><td><strong>Symmetric</strong>（對稱）</td></tr>
+</table>
+
+<h4>Combined Data：</h4>
+<div class="formula">Combined Mean = (n₁x̄₁ + n₂x̄₂) / (n₁ + n₂)
+⚠️ 唔係直接平均！要用 weighted average！
+Combined SD：用 Σx²_all = Σx²_group1 + Σx²_group2 重新計</div>
+
+<h3>🎯 3.2 Time Series 概念版（10 分鐘）</h3>
+<table>
+<tr><th>概念</th><th>意思</th><th>考試點答</th></tr>
+<tr><td>Trend</td><td>長期方向</td><td>"The overall trend is [increasing/decreasing/stable]"</td></tr>
+<tr><td>Seasonal Variation</td><td>固定週期重複嘅 pattern</td><td>"Sales are highest in Q4 and lowest in Q2, repeating each year"</td></tr>
+<tr><td>Moving Average</td><td>消除季節波動嘅工具</td><td>SV = Original − MA</td></tr>
+</table>
+
+<h3>🎯 3.3 最後 35 分鐘：做題練習！</h3>
+<table>
+<tr><th>順序</th><th>做咩</th><th>時間</th></tr>
+<tr><td>1</td><td>唔睇筆記默寫所有公式</td><td>8 min</td></tr>
+<tr><td>2</td><td>對答案，標記記錯嘅公式</td><td>2 min</td></tr>
+<tr><td>3</td><td>做 Q6 或 Q10（Probability Distribution）</td><td>5 min</td></tr>
+<tr><td>4</td><td>做 Q2(a)(b)（Normal Distribution 查表）</td><td>5 min</td></tr>
+<tr><td>5</td><td>做 Q5(a) 或 Q11(ai)（Confidence Interval）</td><td>5 min</td></tr>
+<tr><td>6</td><td>再默寫記錯嘅公式</td><td>5 min</td></tr>
+<tr><td>7</td><td>最後睇一次所有 Interpretation 模板</td><td>5 min</td></tr>
+</table>
+</section>
+
+<!-- ==================== 考試公式速查表 ==================== -->
+<section id="cheatsheet">
+<h1>📋 考試公式速查表</h1>
+<div class="formula">═══════════════════════════════════════
+         考試公式速查表
+═══════════════════════════════════════
+
+【Probability Distribution】
+ΣP = 1
+E(X) = Σ x·P(X=x)
+Var(X) = E(X²) − [E(X)]²
+SD = √Var
+
+【Linear Transformation Y = aX + b】
+E(Y) = aE(X) + b
+Var(Y) = a²·Var(X)     ← b 唔影響！
+SD(Y) = |a|·SD(X)
+
+【Independent: T = X + Y】
+E(T) = E(X) + E(Y)
+Var(T) = Var(X) + Var(Y)
+SD(T) = √[Var(X)+Var(Y)]  ← SD 唔可以直接加！
+
+【Normal Distribution】
+Z = (X − μ) / σ
+P(Z &lt; −a) = 0.5 − P(0&lt;Z&lt;a)
+反查：M = μ + Zσ
+
+【Confidence Interval】
+σ known:  x̄ ± Z × σ/√n
+σ unknown: x̄ ± t × s/√n  (df=n−1)
+Proportion: p̂ ± Z × √[p̂(1−p̂)/n]
+Min n = (Zσ/ME)² → ROUND UP!
+
+Z values: 90%→1.645  95%→1.96  98%→2.326  99%→2.576
+
+【Price Index】
+Laspeyres = Σq₀pₜ / Σq₀p₀ × 100  (L=舊q)
+Paasche = Σqₜpₜ / Σqₜp₀ × 100    (P=新q)
+
+【CPI】
+Inflation Rate = (CPI_new − CPI_old)/CPI_old × 100%
+
+【Descriptive Stats】
+Mean = Σx/n
+SD = √[(Σx²−nx̄²)/(n−1)]
+Q₁位置 = ¼(n+1), Q₃位置 = ¾(n+1)
+Skew: Q₃−Q₂ > Q₂−Q₁ → Positive
+
+【Time Series】
+SV = Original − Moving Average
+═══════════════════════════════════════</div>
+
+<h2>🚫 放棄清單</h2>
+<table>
+<tr><th>放棄項目</th><th>原因</th></tr>
+<tr><td>Centered 4-period MA 計算</td><td>步驟太多，計算量極大，易錯</td></tr>
+<tr><td>Linear Regression 手算</td><td>Σxy, Σx² 計算量大，考試時間唔夠</td></tr>
+<tr><td>Binomial Distribution 手算</td><td>冇 calculator 好難計</td></tr>
+<tr><td>Combined SD 嘅推導</td><td>記住用 Σx²_all 就夠</td></tr>
+</table>
+
+<h2>🏆 最終預計攞分</h2>
+<table>
+<tr><th>區域</th><th>涵蓋題目</th><th>預計得分</th></tr>
+<tr><td>送分區</td><td>Q1, Q6, Q10, Q13, Transformation parts</td><td>~30%</td></tr>
+<tr><td>主力區</td><td>Q2(a)(b), Q14(a)(b), Q5, Q11, Q3, Q7</td><td>~35%</td></tr>
+<tr><td>加分區</td><td>Q4, Q9, Q8概念, Q14(c)(d)</td><td>~10-15%</td></tr>
+<tr><td><strong>總計</strong></td><td></td><td><strong>~75-80% ✅</strong></td></tr>
+</table>
+</section>
+
+<hr>
+<hr>
+
+<!-- ==================== Q1 ==================== -->
+<section id="q1">
+<h1>📘 Q1：Sampling Methods（抽樣方法）</h1>
+
+<h3>🔍 咩係 Sampling（抽樣）？</h3>
+<p>你唔可能問全世界每一個人嘅意見，所以你揀一部分人嚟代表成個群體，呢個過程就叫 <strong>Sampling</strong>。</p>
+
+<h3>📌 三種必識嘅 Sampling Methods：</h3>
+
+<h4>1️⃣ Simple Random Sampling（簡單隨機抽樣）</h4>
+<ul>
+<li><strong>Definition</strong>: Every member of the population has an <strong>equal chance</strong> of being selected.</li>
+<li><strong>白話</strong>：好似抽獎咁，每個人被抽中嘅機會一樣。</li>
+<li><strong>例子</strong>：Q1(a)(i) — 從所有註冊醫生入面隨機揀 50 個做調查。</li>
+</ul>
+
+<h4>2️⃣ Stratified Sampling（分層抽樣）</h4>
+<ul>
+<li><strong>Definition</strong>: Population divided into <strong>subgroups (strata)</strong>, then random samples drawn from <strong>each stratum</strong>.</li>
+<li><strong>白話</strong>：先分組（例如按部門），再喺每組入面各自隨機抽人。</li>
+<li><strong>例子</strong>：Q1(a)(ii) — 銀行有 Marketing、Research、Finance 三個部門，分別隨機抽 30、20、50 人。</li>
+</ul>
+
+<h4>3️⃣ Systematic Sampling（系統抽樣）</h4>
+<ul>
+<li><strong>Definition</strong>: Select every <strong>k-th</strong> member from a list or sequence.</li>
+<li><strong>白話</strong>：每隔固定人數抽一個。</li>
+<li><strong>例子</strong>：Q1(a)(iii) — 每第 8 個入學校嘅學生就問佢最鍾意邊個老師。</li>
+</ul>
+
+<h3>✅ Q1(a) 答案：</h3>
+<table>
+<tr><th>情境</th><th>答案</th></tr>
+<tr><td>(i) 隨機揀 50 個醫生</td><td><strong>Simple Random Sampling</strong></td></tr>
+<tr><td>(ii) 按部門各自抽人</td><td><strong>Stratified Sampling</strong></td></tr>
+<tr><td>(iii) 每第 8 個學生</td><td><strong>Systematic Sampling</strong></td></tr>
+</table>
+
+<div class="box-tip">
+<p>🧠 <strong>考試 Tips</strong>：</p>
+<ul>
+<li>見到 "randomly selected from the whole group" → Simple Random</li>
+<li>見到 "divided into groups / departments" → Stratified</li>
+<li>見到 "every k-th" → Systematic</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== Q2 ==================== -->
+<section id="q2">
+<h1>📘 Q2：Normal Distribution 常態分佈綜合題</h1>
+<p><strong>題目背景</strong>：ABC 航空公司由香港飛台灣嘅飛行時間 X ~ N(90, 15²)</p>
+
+<h3>🔑 Z-Score（標準分數）</h3>
+<div class="formula">Z = (X − μ) / σ</div>
+<p>Z 嘅意思：呢個數值距離 mean 有幾多個 standard deviation</p>
+
+<h3>📊 Normal Table 點用？</h3>
+<ul>
+<li>呢份卷嘅 Table：P(0 &lt; Z &lt; z) = 由 0 到 z 之間嘅面積</li>
+<li>成條鐘形曲線嘅<strong>總面積 = 1</strong>，左半邊 = 0.5，右半邊 = 0.5</li>
+</ul>
+
+<hr>
+
+<h3>Q2(a)：P(X &lt; 81) = ?</h3>
+<div class="step">
+<p><strong>Step 1</strong>：Z = (81 − 90) / 15 = −0.6</p>
+<p><strong>Step 2</strong>：P(Z &lt; −0.6) = 0.5 − P(0 &lt; Z &lt; 0.6)</p>
+<p><strong>Step 3</strong>：查表 P(0&lt;Z&lt;0.6) = 0.2257</p>
+</div>
+<div class="answer">P(X &lt; 81) = 0.5 − 0.2257 = <strong>0.2743</strong></div>
+
+<hr>
+
+<h3>Q2(b)：搵 M，使得 P(X &gt; M) = 0.20</h3>
+<div class="step">
+<p><strong>Step 1</strong>：P(X &gt; M) = 0.20 → P(X &lt; M) = 0.80 → P(0&lt;Z&lt;z) = 0.30</p>
+<p><strong>Step 2</strong>：反查表 → Z ≈ 0.84</p>
+<p><strong>Step 3</strong>：M = 90 + 0.84 × 15 = 90 + 12.6</p>
+</div>
+<div class="answer">M = <strong>102.6 minutes</strong></div>
+
+<hr>
+
+<h3>Q2(c)：Binomial Distribution 題</h3>
+<p>隨機抽 20 班機，求剛好 5 班飛行時間少過 81 分鐘嘅概率</p>
+<div class="step">
+<p>由 part (a)：p = P(X &lt; 81) = 0.2743</p>
+<p>Y ~ Bin(n = 20, p = 0.2743)</p>
+<p>P(Y = 5) = C(20,5) × (0.2743)⁵ × (0.7257)¹⁵</p>
+<p>= 15504 × 0.001553 × 0.01026</p>
+</div>
+<div class="answer">P(Y = 5) ≈ <strong>0.2470</strong></div>
+
+<div class="box-key">
+<p><strong>Binomial 嘅條件</strong>：① 固定次數 n ② 每次只有兩個結果 ③ 每次概率 p 相同 ④ 各次獨立</p>
+</div>
+
+<hr>
+
+<h3>Q2(d)：Linear Transformation</h3>
+<p>升級後飛行時間減少 8%，新時間 = 0.92X</p>
+<div class="answer">
+<p>(i) E(0.92X) = 0.92 × 90 = <strong>82.8 minutes</strong></p>
+<p>(ii) SD(0.92X) = 0.92 × 15 = <strong>13.8 minutes</strong></p>
+</div>
+
+<h3>📝 Q2 總結：</h3>
+<table>
+<tr><th>Part</th><th>考點</th><th>核心公式</th></tr>
+<tr><td>(a)</td><td>Normal → Z-score → 查表</td><td>Z = (X − μ) / σ</td></tr>
+<tr><td>(b)</td><td>反查 Normal Table</td><td>由概率搵 Z → X = μ + Zσ</td></tr>
+<tr><td>(c)</td><td>Normal + Binomial 結合</td><td>用 (a) 嘅概率做 Binomial 嘅 p</td></tr>
+<tr><td>(d)</td><td>Linear Transformation</td><td>E(aX) = aE(X), SD(aX) = |a|SD(X)</td></tr>
+</table>
+</section>
+
+<!-- ==================== Q3 ==================== -->
+<section id="q3">
+<h1>📘 Q3：Price Index（價格指數）</h1>
+<p><strong>題目背景</strong>：四種水果 2019-2021 年嘅價格同數量</p>
+
+<table>
+<tr><th>Items</th><th>p₂₀₁₉</th><th>q₂₀₁₉</th><th>p₂₀₂₀</th><th>q₂₀₂₀</th><th>p₂₀₂₁</th><th>q₂₀₂₁</th></tr>
+<tr><td>Apple</td><td>5.0</td><td>24.7</td><td>5.6</td><td>25.7</td><td>5.8</td><td>20.4</td></tr>
+<tr><td>Orange</td><td>5.5</td><td>15.5</td><td>5.8</td><td>14.3</td><td>5.4</td><td>16.1</td></tr>
+<tr><td>Pear</td><td>6.8</td><td>10.5</td><td>7.7</td><td>11.2</td><td>8.0</td><td>12.3</td></tr>
+<tr><td>Strawberry</td><td>14.2</td><td>35.6</td><td>18.0</td><td>36.5</td><td>17.5</td><td>34.5</td></tr>
+</table>
+
+<hr>
+
+<h3>Q3(a)：Paasche Price Index for 2020, Base Year = 2019</h3>
+<p><strong>Paasche → 用 Current Year（2020）嘅 Quantity</strong></p>
+<table>
+<tr><th>Item</th><th>q₂₀₂₀ × p₂₀₂₀</th><th>q₂₀₂₀ × p₂₀₁₉</th></tr>
+<tr><td>Apple</td><td>25.7 × 5.6 = 143.92</td><td>25.7 × 5.0 = 128.50</td></tr>
+<tr><td>Orange</td><td>14.3 × 5.8 = 82.94</td><td>14.3 × 5.5 = 78.65</td></tr>
+<tr><td>Pear</td><td>11.2 × 7.7 = 86.24</td><td>11.2 × 6.8 = 76.16</td></tr>
+<tr><td>Strawberry</td><td>36.5 × 18.0 = 657.00</td><td>36.5 × 14.2 = 518.30</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>970.10</strong></td><td><strong>801.61</strong></td></tr>
+</table>
+<div class="answer">PI_P = 970.10 / 801.61 × 100 = <strong>121.02</strong></div>
+<blockquote>"Based on the Paasche Price Index, the overall price level in 2020 has increased by approximately 21.02% compared to the base year 2019, using 2020 quantities as weights."</blockquote>
+
+<hr>
+
+<h3>Q3(b)：Laspeyres Price Index for 2021, Base Year = 2020</h3>
+<p><strong>Laspeyres → 用 Base Year（2020）嘅 Quantity</strong></p>
+<table>
+<tr><th>Item</th><th>q₂₀₂₀ × p₂₀₂₁</th><th>q₂₀₂₀ × p₂₀₂₀</th></tr>
+<tr><td>Apple</td><td>25.7 × 5.8 = 149.06</td><td>25.7 × 5.6 = 143.92</td></tr>
+<tr><td>Orange</td><td>14.3 × 5.4 = 77.22</td><td>14.3 × 5.8 = 82.94</td></tr>
+<tr><td>Pear</td><td>11.2 × 8.0 = 89.60</td><td>11.2 × 7.7 = 86.24</td></tr>
+<tr><td>Strawberry</td><td>36.5 × 17.5 = 638.75</td><td>36.5 × 18.0 = 657.00</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>954.63</strong></td><td><strong>970.10</strong></td></tr>
+</table>
+<div class="answer">PI_L = 954.63 / 970.10 × 100 = <strong>98.41</strong> → 價格下降 1.59%</div>
+</section>
+
+<!-- ==================== Q4 ==================== -->
+<section id="q4">
+<h1>📘 Q4：Descriptive Statistics（描述統計量）</h1>
+<p><strong>數據</strong>（12 套戲嘅片長，已排序）：93, 96, 99, 102, 105, 106, 108, 115, 120, 121, 131, 146（n = 12）</p>
+
+<h3>Q4(a)：Sample Mean 同 Sample SD</h3>
+<div class="step">
+<p>Σx = 1342 → x̄ = 1342 / 12 = <strong>111.83 min</strong></p>
+<p>Σx² = 152,738</p>
+<p>s = √[(152738 − 12 × 111.83²) / 11] = √[2666.61 / 11] = √242.42 = <strong>15.57 min</strong></p>
+</div>
+
+<h3>Q4(b)：Range 同 IQR</h3>
+<div class="step">
+<p><strong>Range</strong> = 146 − 93 = <strong>53 min</strong></p>
+<p>Q₁ 位置 = ¼(13) = 3.25 → Q₁ = 99 + 0.25(102−99) = <strong>99.75</strong></p>
+<p>Q₃ 位置 = ¾(13) = 9.75 → Q₃ = 120 + 0.75(121−120) = <strong>120.75</strong></p>
+<p>Q₂ 位置 = ½(13) = 6.5 → Q₂ = (106+108)/2 = <strong>107</strong></p>
+<p><strong>IQR</strong> = 120.75 − 99.75 = <strong>21 min</strong></p>
+</div>
+
+<h3>Q4(c)：Skewness</h3>
+<div class="step">
+<p>Q₃ − Q₂ = 120.75 − 107 = <strong>13.75</strong></p>
+<p>Q₂ − Q₁ = 107 − 99.75 = <strong>7.25</strong></p>
+<p>13.75 &gt; 7.25 → <strong>Positively skewed</strong></p>
+</div>
+<div class="answer">"Since Q₃ − Q₂ (13.75) > Q₂ − Q₁ (7.25), the data is positively skewed (skewed to the right)."</div>
+</section>
+
+<!-- ==================== Q5 ==================== -->
+<section id="q5">
+<h1>📘 Q5：Confidence Interval（置信區間）</h1>
+
+<h3>Q5(a)：CI for Population Mean（σ unknown → 用 t）</h3>
+<p>Blood test time, n=28, x̄=130, s=25, 90% CI</p>
+<div class="step">
+<p>df = 27, α/2 = 0.05 → t₀.₀₅,₂₇ = <strong>1.703</strong></p>
+<p>SE = 25/√28 = 4.7245</p>
+<p>ME = 1.703 × 4.7245 = 8.04</p>
+</div>
+<div class="answer">90% CI = 130 ± 8.04 = <strong>(121.96, 138.04) minutes</strong></div>
+<blockquote>"We are 90% confident that the population mean time required to finish the blood test is between 121.96 and 138.04 minutes."</blockquote>
+
+<hr>
+
+<h3>Q5(b)：CI for Population Proportion（永遠用 Z）</h3>
+<p>n=200, defective=25, p̂=0.125, 95% CI</p>
+<div class="step">
+<p>Z₀.₀₂₅ = <strong>1.96</strong></p>
+<p>SE = √[0.125 × 0.875 / 200] = 0.02339</p>
+<p>ME = 1.96 × 0.02339 = 0.04585</p>
+</div>
+<div class="answer">95% CI = 0.125 ± 0.04585 = <strong>(0.0792, 0.1709)</strong> 即 (7.92%, 17.09%)</div>
+<blockquote>"We are 95% confident that the population proportion of defective items is between 0.0792 and 0.1709."</blockquote>
+</section>
+
+<!-- ==================== Q6 ==================== -->
+<section id="q6">
+<h1>📘 Q6：Discrete Probability Distribution（離散概率分佈）</h1>
+<p><strong>題目</strong>：每日交通意外數量 X 嘅概率分佈</p>
+<table>
+<tr><th>x</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+<tr><th>P(X=x)</th><td>0.1</td><td>0.2</td><td>0.45</td><td>0.15</td><td>0.05</td><td>k</td></tr>
+</table>
+
+<h3>Q6(a)：Find k</h3>
+<div class="answer">0.1+0.2+0.45+0.15+0.05+k = 1 → <strong>k = 0.05</strong></div>
+
+<h3>Q6(b)：E(X)</h3>
+<table>
+<tr><th>x</th><th>P(X=x)</th><th>x·P</th></tr>
+<tr><td>0</td><td>0.10</td><td>0</td></tr>
+<tr><td>1</td><td>0.20</td><td>0.20</td></tr>
+<tr><td>2</td><td>0.45</td><td>0.90</td></tr>
+<tr><td>3</td><td>0.15</td><td>0.45</td></tr>
+<tr><td>4</td><td>0.05</td><td>0.20</td></tr>
+<tr><td>5</td><td>0.05</td><td>0.25</td></tr>
+</table>
+<div class="answer">E(X) = 0+0.20+0.90+0.45+0.20+0.25 = <strong>2.0</strong></div>
+
+<h3>Q6(c)：Var(X) and σ(X)</h3>
+<div class="step">
+<p>E(X²) = 0+0.20+1.80+1.35+0.80+1.25 = <strong>5.40</strong></p>
+<p>Var(X) = 5.40 − (2.0)² = 5.40 − 4.00 = <strong>1.40</strong></p>
+<p>σ(X) = √1.40 = <strong>1.1832</strong></p>
+</div>
+
+<h3>Q6(d)：30 日內預期有幾多日多過 3 宗意外？</h3>
+<div class="step">
+<p>P(X &gt; 3) = P(X=4) + P(X=5) = 0.05 + 0.05 = 0.10</p>
+</div>
+<div class="answer">Expected days = 30 × 0.10 = <strong>3 days</strong></div>
+<div class="box-warn">
+<p>⚠️ 「more than 3」唔包括 3！P(X &gt; 3) ≠ P(X ≥ 3)</p>
+</div>
+</section>
+
+<!-- ==================== Q7 ==================== -->
+<section id="q7">
+<h1>📘 Q7：Price Index 第二題</h1>
+<p><strong>題目</strong>：玩具店銷售資料</p>
+<table>
+<tr><th>Items</th><th>p₁₆</th><th>q₁₆</th><th>p₁₇</th><th>q₁₇</th><th>p₁₈</th><th>q₁₈</th></tr>
+<tr><td>Slime</td><td>6</td><td>50</td><td>9</td><td>60</td><td>10</td><td>56</td></tr>
+<tr><td>Stinky tack</td><td>2</td><td>100</td><td>2</td><td>105</td><td>2</td><td>120</td></tr>
+<tr><td>Stinky egg</td><td>4</td><td>60</td><td>4</td><td>50</td><td>6</td><td>60</td></tr>
+<tr><td>Teddy Bear</td><td>10</td><td>30</td><td>11</td><td>26</td><td>12</td><td>24</td></tr>
+<tr><td>Tortoise</td><td>8</td><td>40</td><td>11</td><td>39</td><td>12</td><td>36</td></tr>
+</table>
+
+<h3>Q7(a)：Laspeyres PI for 2018, Base Year = 2016</h3>
+<div class="step">
+<p>Σ(q₀×pₜ) = 500+200+360+360+480 = <strong>1900</strong></p>
+<p>Σ(q₀×p₀) = 300+200+240+300+320 = <strong>1360</strong></p>
+</div>
+<div class="answer">PI_L = 1900/1360 × 100 = <strong>139.71</strong></div>
+<blockquote>"The overall price level in 2018 has increased by approximately 39.71% compared to 2016."</blockquote>
+
+<h3>Q7(c)：Paasche PI for 2018, Base Year = 2016</h3>
+<div class="step">
+<p>Σ(qₜ×pₜ) = 560+240+360+288+432 = <strong>1880</strong></p>
+<p>Σ(qₜ×p₀) = 336+240+240+240+288 = <strong>1344</strong></p>
+</div>
+<div class="answer">PI_P = 1880/1344 × 100 = <strong>139.88</strong></div>
+
+<h3>Q7(d)：Greatest inflation rate 2017→2018</h3>
+<table>
+<tr><th>Item</th><th>p₂₀₁₇</th><th>p₂₀₁₈</th><th>升幅%</th></tr>
+<tr><td>Slime</td><td>9</td><td>10</td><td>+11.1%</td></tr>
+<tr><td>Stinky tack</td><td>2</td><td>2</td><td>0%</td></tr>
+<tr><td><strong>Stinky egg</strong></td><td>4</td><td>6</td><td><strong>+50% ✅</strong></td></tr>
+<tr><td>Teddy Bear</td><td>11</td><td>12</td><td>+9.1%</td></tr>
+<tr><td>Tortoise</td><td>11</td><td>12</td><td>+9.1%</td></tr>
+</table>
+<div class="answer">答案：<strong>Stinky egg</strong>（+50%）</div>
+<div class="box-tip">
+<p>🧠 唔好淨係睇「加咗幾多錢」，要睇<strong>百分比</strong>！底數細 → 百分比升幅大！</p>
+</div>
+</section>
+
+<!-- ==================== Q8 ==================== -->
+<section id="q8">
+<h1>📘 Q8：Time Series Analysis（時間序列分析）</h1>
+<p><strong>題目</strong>：郵局 3 個星期嘅每日客人數量</p>
+<table>
+<tr><th></th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr>
+<tr><td>Week 1</td><td>304</td><td>102</td><td>134</td><td>156</td><td>201</td></tr>
+<tr><td>Week 2</td><td>287</td><td>88</td><td>125</td><td>144</td><td>190</td></tr>
+<tr><td>Week 3</td><td>269</td><td>67</td><td>98</td><td>121</td><td>174</td></tr>
+</table>
+
+<h3>Q8(a)：Describe Trend and Seasonal Variation</h3>
+<div class="answer">
+<p><strong>Trend</strong>: "The overall trend is decreasing. The number of customers is declining over the 3-week period (MA from 179.4 to 145.8)."</p>
+<p><strong>Seasonal Variation</strong>: "Monday has the highest number of customers, followed by a sharp drop on Tuesday (the lowest). The number then gradually increases from Wednesday to Friday. This pattern repeats consistently."</p>
+</div>
+
+<h3>Q8(b)：Seasonal Variation 計算</h3>
+<p>SV = Original Data − Moving Average，再將同一日嘅 SV 平均</p>
+<table>
+<tr><th>Day</th><th>SV 數值</th><th>平均 SV</th></tr>
+<tr><td>Monday</td><td>+115.6, +115.4</td><td><strong>+115.5</strong></td></tr>
+<tr><td>Tuesday</td><td>−81.0, −82.0</td><td><strong>−81.5</strong></td></tr>
+<tr><td>Wednesday</td><td>−45.4, −41.8, −47.8</td><td><strong>−45.0</strong></td></tr>
+<tr><td>Thursday</td><td>−20.0, −19.2</td><td><strong>−19.6</strong></td></tr>
+<tr><td>Friday</td><td>+27.8, +31.0</td><td><strong>+29.4</strong></td></tr>
+</table>
+<div class="box-key">
+<p>SV 正數 → 呢日客人數<strong>高過</strong>趨勢平均 | SV 負數 → <strong>低過</strong>趨勢平均</p>
+</div>
+</section>
+
+<!-- ==================== Q9 ==================== -->
+<section id="q9">
+<h1>📘 Q9：Descriptive Statistics — 分組 + 合併數據</h1>
+<p><strong>Yuen Long</strong>：33, 35, 38, 40, 48, 53, 55, 62（n₁ = 8）</p>
+<p><strong>Causeway Bay</strong>：43, 48, 50, 54, 58, 63, 74, 80, 82, 88, 89, 93（n₂ = 12）</p>
+
+<h3>Q9(a)：分別計算 Mean 同 SD</h3>
+<table>
+<tr><th></th><th>Yuen Long</th><th>Causeway Bay</th></tr>
+<tr><td>Σx</td><td>364</td><td>822</td></tr>
+<tr><td>Σx²</td><td>17,340</td><td>59,816</td></tr>
+<tr><td><strong>Mean</strong></td><td><strong>$45.5</strong></td><td><strong>$68.5</strong></td></tr>
+<tr><td><strong>SD</strong></td><td><strong>$10.54</strong></td><td><strong>$17.86</strong></td></tr>
+</table>
+
+<h3>Q9(b)：Comparison</h3>
+<div class="answer">
+<p><strong>Mean</strong>: CB ($68.5) higher than YL ($45.5) → lunch more expensive in Causeway Bay.</p>
+<p><strong>SD</strong>: CB ($17.86) larger than YL ($10.54) → spending in CB has greater variability.</p>
+</div>
+
+<h3>Q9(c)：Combined Data</h3>
+<div class="step">
+<p><strong>Combined Mean</strong> = (8×45.5 + 12×68.5) / 20 = 1186/20 = <strong>$59.3</strong></p>
+<p><strong>Combined SD</strong>：Σx²_all = 17340 + 59816 = 77156</p>
+<p>s = √[(77156 − 20×59.3²) / 19] = √[6826.2/19] = √359.27 = <strong>$18.96</strong></p>
+</div>
+
+<h4>82nd Percentile：</h4>
+<p>合併排序（n=20）：33, 35, 38, 40, 43, 48, 48, 50, 53, 54, 55, 58, 62, 63, 74, 80, 82, 88, 89, 93</p>
+<div class="step">
+<p>位置 = (82/100) × 21 = 17.22 → 第17個(82)同第18個(88)之間</p>
+<p>P₈₂ = 82 + 0.22 × (88−82) = 82 + 1.32</p>
+</div>
+<div class="answer">82nd Percentile = <strong>$83.32</strong></div>
+</section>
+
+<!-- ==================== Q10 ==================== -->
+<section id="q10">
+<h1>📘 Q10：Probability Distribution + Linear Transformation</h1>
+<p><strong>題目</strong>：汽車維修店每日客人數量 X</p>
+<table>
+<tr><th>x</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+<tr><th>P(X=x)</th><td>0.1</td><td>0.25</td><td>k</td><td>0.3</td><td>0.15</td></tr>
+</table>
+
+<h3>Q10(a)：Find k</h3>
+<div class="answer">0.1+0.25+k+0.3+0.15 = 1 → <strong>k = 0.2</strong></div>
+
+<h3>Q10(b)：E(X) and Var(X)</h3>
+<table>
+<tr><th>x</th><th>P</th><th>x·P</th><th>x²·P</th></tr>
+<tr><td>0</td><td>0.10</td><td>0</td><td>0</td></tr>
+<tr><td>1</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>
+<tr><td>2</td><td>0.20</td><td>0.40</td><td>0.80</td></tr>
+<tr><td>3</td><td>0.30</td><td>0.90</td><td>2.70</td></tr>
+<tr><td>4</td><td>0.15</td><td>0.60</td><td>2.40</td></tr>
+</table>
+<div class="answer">
+<p>E(X) = 0+0.25+0.40+0.90+0.60 = <strong>2.15</strong></p>
+<p>E(X²) = 6.15 → Var(X) = 6.15 − 2.15² = 6.15 − 4.6225 = <strong>1.5275</strong></p>
+</div>
+
+<h3>Q10(c)：Y = 5000X − 7000</h3>
+<p>a = 5000, b = −7000</p>
+<div class="answer">
+<p>E(Y) = 5000 × 2.15 − 7000 = 10750 − 7000 = <strong>$3,750</strong></p>
+<p>Var(Y) = 5000² × 1.5275 = 25,000,000 × 1.5275 = <strong>$38,187,500</strong></p>
+</div>
+<div class="box-warn">
+<p>⚠️ Var(Y) = a² × Var(X)，a 要<strong>平方</strong>！而且 b 唔影響 Var！</p>
+</div>
+</section>
+
+<!-- ==================== Q11 ==================== -->
+<section id="q11">
+<h1>📘 Q11：Confidence Interval 進階版</h1>
+<p><strong>題目</strong>：ATM 交易時間 ~ Normal, σ = 0.4 (known!), n=25, x̄=2.2</p>
+
+<h3>⚡ 關鍵判斷：σ = 0.4 已知 → 用 Z！</h3>
+
+<h3>Q11(ai)：95% CI for Mean（σ known → Z）</h3>
+<div class="step">
+<p>Z₀.₀₂₅ = 1.96, SE = 0.4/√25 = 0.08</p>
+<p>ME = 1.96 × 0.08 = 0.1568</p>
+</div>
+<div class="answer">95% CI = 2.2 ± 0.1568 = <strong>(2.0432, 2.3568) minutes</strong></div>
+
+<h3>Q11(aii)：Minimum Sample Size（ME ≤ 0.08）</h3>
+<div class="formula">n = (Z × σ / ME)² = (1.96 × 0.4 / 0.08)² = (9.8)² = 96.04</div>
+<div class="answer">n = 96.04 → <strong>Round Up → n = 97</strong></div>
+<div class="box-warn">
+<p>⚠️ <strong>一定要 Round Up！</strong>96.04 → 97，唔係 96！</p>
+</div>
+
+<h3>Q11(b)：98% CI for Proportion</h3>
+<p>n=300, 45 人提取超過 $1900, p̂ = 45/300 = 0.15</p>
+<div class="step">
+<p>Z₀.₀₁ = <strong>2.326</strong>（98% CI）</p>
+<p>SE = √[0.15 × 0.85 / 300] = 0.02062</p>
+<p>ME = 2.326 × 0.02062 = 0.04796</p>
+</div>
+<div class="answer">98% CI = 0.15 ± 0.04796 = <strong>(0.1020, 0.1980)</strong> 即 (10.20%, 19.80%)</div>
+</section>
+
+<!-- ==================== Q12 ==================== -->
+<section id="q12">
+<h1>📘 Q12：Linear Regression + Time Series（季度數據）</h1>
+<p><strong>題目</strong>：電器鋪 2012-2019 年電視銷量（千部）</p>
+<table>
+<tr><th>Year</th><td>2012</td><td>2013</td><td>2014</td><td>2015</td><td>2016</td><td>2017</td><td>2018</td><td>2019</td></tr>
+<tr><th>Sales</th><td>14.3</td><td>15.2</td><td>15.7</td><td>17.3</td><td>19.6</td><td>21.4</td><td>25.2</td><td>26.9</td></tr>
+</table>
+
+<h3>Q12(a)：Linear Regression Equation</h3>
+<p>Let x = Year − 2012, n = 8</p>
+<div class="step">
+<p>Σx = 28, Σy = 155.6, Σxy = 623.4, Σx² = 140</p>
+<p>b = (8×623.4 − 28×155.6) / (8×140 − 28²) = 630.4/336 = <strong>1.8762</strong></p>
+<p>x̄ = 3.5, ȳ = 19.45</p>
+<p>a = 19.45 − 1.8762×3.5 = <strong>12.8833</strong></p>
+</div>
+<div class="answer">ŷ = 12.8833 + 1.8762x</div>
+<blockquote><strong>Slope interpretation</strong>: "On average, sales increase by approximately 1,876.2 units (1.8762 thousand) per year."</blockquote>
+
+<h3>Q12(b)：Forecast 2021</h3>
+<div class="step">
+<p>x = 2021 − 2012 = 9</p>
+<p>ŷ = 12.8833 + 1.8762 × 9 = 12.8833 + 16.8858</p>
+</div>
+<div class="answer">Forecast = <strong>29.77 千部 = 29,770 部</strong></div>
+
+<h3>Q12(c)：Seasonal Variation 描述</h3>
+<div class="answer">"Sales are lowest in Quarter 2 and highest in Quarter 3 and Quarter 4 each year. This seasonal pattern repeats annually."</div>
+
+<h3>Q12(d)：Centered 4-period MA + Seasonal Variation</h3>
+<p>填空：2018 Q3 Centered MA = <strong>6.325</strong>，2019 Q3 Centered MA = <strong>6.675</strong></p>
+<table>
+<tr><th>Quarter</th><th>Seasonal Variation</th><th>解讀</th></tr>
+<tr><td>Q1</td><td><strong>−0.3563</strong></td><td>低過趨勢 356 部</td></tr>
+<tr><td>Q2</td><td><strong>−1.0313</strong></td><td>低過趨勢 1,031 部（最差）</td></tr>
+<tr><td>Q3</td><td><strong>+0.6083</strong></td><td>高過趨勢 608 部</td></tr>
+<tr><td>Q4</td><td><strong>+0.8813</strong></td><td>高過趨勢 881 部（最好）</td></tr>
+</table>
+<div class="box-key">
+<p>🧠 <strong>奇數週期</strong>（5-day）→ MA 直接對齊 → 唔使 center</p>
+<p>🧠 <strong>偶數週期</strong>（4-quarter）→ MA 落喺兩點之間 → 要 center！</p>
+</div>
+</section>
+
+<!-- ==================== Q13 ==================== -->
+<section id="q13">
+<h1>📘 Q13：CPI（Consumer Price Index）</h1>
+<table>
+<tr><th>Country</th><th>CPI 2016</th><th>CPI 2017</th><th>CPI 2018</th><th>CPI 2019</th></tr>
+<tr><td>United Kingdom</td><td>99.4</td><td>101.5</td><td>104.2</td><td>106.3</td></tr>
+<tr><td>France</td><td>99.0</td><td>100.6</td><td>101.7</td><td>103.1</td></tr>
+<tr><td>Germany</td><td>99.1</td><td>100.8</td><td>102.0</td><td>103.3</td></tr>
+</table>
+
+<h3>Q13(a)：Which countries experienced inflation?</h3>
+<div class="answer"><strong>All three countries</strong> — UK, France, Germany — experienced inflation (CPI increased consistently).</div>
+
+<h3>Q13(b)：Percentage changes 2018 → 2019</h3>
+<div class="formula">Inflation Rate = (CPI_new − CPI_old) / CPI_old × 100%</div>
+<table>
+<tr><th>Country</th><th>CPI 2018</th><th>CPI 2019</th><th>% Change</th></tr>
+<tr><td>UK</td><td>104.2</td><td>106.3</td><td><strong>+2.02%</strong></td></tr>
+<tr><td>France</td><td>101.7</td><td>103.1</td><td><strong>+1.38%</strong></td></tr>
+<tr><td>Germany</td><td>102.0</td><td>103.3</td><td><strong>+1.27%</strong></td></tr>
+</table>
+<div class="box-warn">
+<p>⚠️ 分母係<strong>舊嘅 CPI</strong>！唔係新嘅！</p>
+<p>⚠️ CPI 升咗 2.1 ≠ 通脹率 2.1%（要除以舊 CPI）</p>
+</div>
+</section>
+
+<!-- ==================== Q14 ==================== -->
+<section id="q14">
+<h1>📘 Q14：Normal Distribution 進階版 — 兩個獨立隨機變量</h1>
+<p><strong>Tin Restaurant</strong>：X ~ N(160, 8²)</p>
+<p><strong>Sam Steak House</strong>：Y ~ N(164, 15²)，X 同 Y 獨立</p>
+
+<h3>Q14(a)：P(140 &lt; X &lt; 170)</h3>
+<div class="step">
+<p>Z₁ = (140−160)/8 = −2.5，Z₂ = (170−160)/8 = 1.25</p>
+<p>P(−2.5 &lt; Z &lt; 1.25) = P(0&lt;Z&lt;2.5) + P(0&lt;Z&lt;1.25) = 0.4938 + 0.3944</p>
+</div>
+<div class="answer">P = <strong>0.8882</strong> (88.82%)</div>
+
+<h3>Q14(b)：P(X ≥ M) = 0.80，搵 M</h3>
+<div class="step">
+<p>P(X &lt; M) = 0.20 → M 喺左邊 → Z = −0.84</p>
+<p>M = 160 + (−0.84) × 8 = 160 − 6.72</p>
+</div>
+<div class="answer">M = <strong>153.28 thousand dollars</strong></div>
+
+<h3>Q14(c)：T = X + Y</h3>
+<div class="answer">
+<p>(i) E(T) = 160 + 164 = <strong>324</strong></p>
+<p>(ii) Var(T) = 8² + 15² = 64 + 225 = <strong>289</strong></p>
+<p>(iii) SD(T) = √289 = <strong>17</strong></p>
+<p>(iv) Median = <strong>324</strong>（Normal Distribution → Mean = Median）</p>
+</div>
+<div class="box-warn">
+<p>⚠️ SD 唔可以直接加！❌ 8+15=23 | ✅ √(64+225) = √289 = 17</p>
+</div>
+
+<h3>Q14(d)：P(T &gt; 350) 高唔高？</h3>
+<div class="step">
+<p>T ~ N(324, 17²)</p>
+<p>Z = (350−324)/17 = 26/17 ≈ 1.53</p>
+<p>P(T &gt; 350) = 0.5 − P(0&lt;Z&lt;1.53) = 0.5 − 0.4370</p>
+</div>
+<div class="answer">P(T &gt; 350) = <strong>0.0630 (6.30%)</strong> → <strong>唔高！Samson 嘅講法唔啱。</strong></div>
+<blockquote>"The probability is only 6.30%, which is very low. Therefore, it is NOT a high chance."</blockquote>
+</section>
+
+<hr>
+<h2>🔥 考試前最後提醒</h2>
+<ol>
+<li>Normal Table 查表方向要搞清楚</li>
+<li>Z 定 t？σ known → Z, σ unknown → t</li>
+<li>Laspeyres 用舊 q, Paasche 用新 q</li>
+<li>SD 唔可以直接加！要加 Variance 再開根號</li>
+<li>Sample Size 一定 Round Up</li>
+<li>Interpretation 一定要寫</li>
+</ol>
+<p style="text-align:center; font-size:1.3rem; margin-top:2rem;"><strong>考試加油！💪🎓</strong></p>
+
+<script>
+function toggleTheme() {
+  const body = document.body;
+  const btn = document.getElementById('themeBtn');
+  if (body.getAttribute('data-theme') === 'dark') {
+    body.removeAttribute('data-theme');
+    btn.textContent = '🌙';
+  } else {
+    body.setAttribute('data-theme', 'dark');
+    btn.textContent = '☀️';
+  }
+  localStorage.setItem('theme', body.getAttribute('data-theme') || 'light');
+}
+// Load saved theme
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+    document.getElementById('themeBtn').textContent = '☀️';
+  }
+  // Respect system preference
+  if (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.body.setAttribute('data-theme', 'dark');
+    document.getElementById('themeBtn').textContent = '☀️';
+  }
+})();
+</script>
+
+</body>
+</html>
